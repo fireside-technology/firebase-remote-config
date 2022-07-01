@@ -42,29 +42,23 @@ public class FirebaseRemoteConfig: CAPPlugin {
     @objc func fetch(_ call: CAPPluginCall) {
         self.remoteConfig?.fetch(completionHandler: { (status, error) in
             if status == .success {
-                call.success()
+                call.resolve()
             } else {
-                call.error(error?.localizedDescription ?? "Error occured while executing fetch()")
+                call.reject(error?.localizedDescription ?? "Error occured while executing fetch()")
             }
         })
     }
     
     @objc func activate(_ call: CAPPluginCall) {
-        self.remoteConfig?.activate(completionHandler: { (error) in
-            if error != nil {
-                call.error(error?.localizedDescription ?? "Error occured while executing activate()")
-            } else {
-                call.success()
-            }
-        })
+        self.remoteConfig?.activate();
     }
     
     @objc func fetchAndActivate(_ call: CAPPluginCall) {
         self.remoteConfig?.fetchAndActivate(completionHandler: { (status, error) in
             if status == .successFetchedFromRemote || status == .successUsingPreFetchedData {
-                call.success()
+                call.resolve()
             } else {
-                call.error("Error occured while executing failAndActivate()")
+                call.reject("Error occured while executing failAndActivate()")
             }
         })
     }
@@ -76,16 +70,16 @@ public class FirebaseRemoteConfig: CAPPlugin {
             if key != nil {
                 let value = self.remoteConfig?.configValue(forKey: key).boolValue
                 let source = self.remoteConfig?.configValue(forKey: key).source
-                call.success([
+                call.resolve([
                     "key": key! as String,
                     "value": value! as Bool,
                     "source": source!.rawValue as Int
                 ])
             } else {
-                call.error("Key is missing")
+                call.reject("Key is missing")
             }
         } else {
-            call.error("Key is missing")
+            call.reject("Key is missing")
         }
     }
     
@@ -96,16 +90,16 @@ public class FirebaseRemoteConfig: CAPPlugin {
             if key != nil {
                 let value = self.remoteConfig?.configValue(forKey: key).numberValue
                 let source = self.remoteConfig?.configValue(forKey: key).source
-                call.success([
+                call.resolve([
                     "key": key! as String,
                     "value": value!,
                     "source": source!.rawValue as Int
                 ])
             } else {
-                call.error("Key is missing")
+                call.reject("Key is missing")
             }
         } else {
-            call.error("Key is missing")
+            call.reject("Key is missing")
         }
     }
     
@@ -116,20 +110,20 @@ public class FirebaseRemoteConfig: CAPPlugin {
             if key != nil {
                 let value = self.remoteConfig?.configValue(forKey: key).stringValue
                 let source = self.remoteConfig?.configValue(forKey: key).source
-                call.success([
+                call.resolve([
                     "key": key! as String,
                     "value": value!,
                     "source": source!.rawValue as Int
                 ])
             } else {
-                call.error("Key is missing")
+                call.reject("Key is missing")
             }
         } else {
-            call.error("Key is missing")
+            call.reject("Key is missing")
         }
     }
     
     @objc func getByteArray(_ call: CAPPluginCall) {
-        call.success()
+        call.resolve()
     }
 }
