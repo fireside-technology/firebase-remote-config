@@ -17,12 +17,11 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
   private scripts = [
     {
       key: "firebase-app",
-      src: "https://www.gstatic.com/firebasejs/7.15.4/firebase-app.js",
+      src: "https://www.gstatic.com/firebasejs/8.2.3/firebase-app.js",
     },
     {
       key: "firebase-rc",
-      src:
-        "https://www.gstatic.com/firebasejs/7.15.4/firebase-remote-config.js",
+      src: "https://www.gstatic.com/firebasejs/8.2.3/firebase-remote-config.js",
     },
   ];
 
@@ -33,14 +32,14 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
     });
 
     this.ready = new Promise((resolve) => (this.readyResolver = resolve));
-    this.configure();
+    this.configure().catch((err) => console.error(err));
   }
 
   initializeFirebase(options: any): Promise<void> {
     return new Promise(async (resolve, reject) => {
       await this.ready;
 
-      if (options && !this.isFirebaseInitialized()) {
+      if (options && !FirebaseRemoteConfigWeb.hasFirebaseInitialized()) {
         const app = window.firebase.initializeApp(options);
         this.remoteConfigRef = app.remoteConfig();
 
@@ -188,6 +187,7 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
       });
     });
   }
+
   getNumber(options: RCValueOption): Promise<RCReturnData> {
     return new Promise(async (resolve, reject) => {
       await this.ready;
@@ -226,18 +226,26 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
     });
   }
 
+  /**
+   * Returns remote config reference object
+   */
   get remoteConfig() {
     return this.remoteConfigRef;
   }
 
+  /**
+   * Ready resolver to check and load firebase analytics
+   */
   private async configure() {
     try {
       await this.loadScripts();
 
-      if (window.firebase && this.isFirebaseInitialized()) {
+      if (
+        window.firebase &&
+        window.firebase.remoteConfig &&
+        FirebaseRemoteConfigWeb.hasFirebaseInitialized()
+      ) {
         this.remoteConfigRef = window.firebase.remoteConfig();
-      } else {
-        console.error("Firebase App has not yet initialized.");
       }
     } catch (error) {
       throw error;
@@ -252,38 +260,57 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
     }, 50);
   }
 
+  /**
+   * Check for existing loaded script and load new scripts
+   */
   private loadScripts() {
-    return new Promise((resolve, reject) => {
+    const firebaseAppScript = this.scripts[0];
+    const firebaseRemoteConfigScript = this.scripts[1];
+
+    return new Promise(async (resolve, _reject) => {
       const scripts = this.scripts.map((script) => script.key);
       if (
         document.getElementById(scripts[0]) &&
         document.getElementById(scripts[1])
       ) {
-        return resolve();
+        return resolve(null);
       }
 
-      this.scripts.forEach((script: { key: string; src: string }) => {
-        const file = document.createElement("script");
-        file.type = "text/javascript";
-        file.src = script.src;
-        file.id = script.key;
-        file.onload = resolve;
-        file.onerror = reject;
-        document.querySelector("head").appendChild(file);
-      });
+      await this.loadScript(firebaseAppScript.key, firebaseAppScript.src);
+      await this.loadScript(
+        firebaseRemoteConfigScript.key,
+        firebaseRemoteConfigScript.src
+      );
+      resolve(null);
     });
   }
 
-  private isFirebaseInitialized() {
+  /**
+   * Loaded single script with provided id and source
+   * @param id - unique identifier of the script
+   * @param src - source of the script
+   */
+  private loadScript(id: string, src: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const file = document.createElement("script");
+      file.type = "text/javascript";
+      file.src = src;
+      file.id = id;
+      file.onload = resolve;
+      file.onerror = reject;
+      document.querySelector("head").appendChild(file);
+    });
+  }
+
+  /**
+   * Returns true/false if firebase object reference exists inside window
+   */
+  private static hasFirebaseInitialized() {
     if (!window.firebase) {
       return false;
     }
 
     const firebaseApps = window.firebase.apps;
-    if (firebaseApps && firebaseApps.length === 0) {
-      return false;
-    }
-
-    return true;
+    return !(firebaseApps && firebaseApps.length === 0);
   }
 }
