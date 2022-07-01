@@ -162,7 +162,11 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
         return;
       }
 
-      resolve(this.remoteConfigRef.getValue(options.key).asBoolean());
+      resolve({
+        key: options.key,
+        value: await this.remoteConfigRef.getValue(options.key).asBoolean(),
+        source: "",
+      });
     });
   }
 
@@ -177,7 +181,11 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
         return;
       }
 
-      resolve(this.remoteConfigRef.getValue(options.key).asString());
+      resolve({
+        key: options.key,
+        value: await this.remoteConfigRef.getValue(options.key).asString(),
+        source: "",
+      });
     });
   }
   getNumber(options: RCValueOption): Promise<RCReturnData> {
@@ -191,7 +199,11 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
         return;
       }
 
-      resolve(this.remoteConfigRef.getValue(options.key).asNumber());
+      resolve({
+        key: options.key,
+        value: await this.remoteConfigRef.getValue(options.key).asNumber(),
+        source: "",
+      });
     });
   }
 
@@ -206,7 +218,11 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
         return;
       }
 
-      resolve(this.remoteConfigRef.getValue(options.key).asString());
+      resolve({
+        key: options.key,
+        value: await this.remoteConfigRef.getValue(options.key),
+        source: "",
+      });
     });
   }
 
