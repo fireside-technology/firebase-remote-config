@@ -39,7 +39,7 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
     return new Promise(async (resolve, reject) => {
       await this.ready;
 
-      if (options && !FirebaseRemoteConfigWeb.hasFirebaseInitialized()) {
+      if (options && !this.hasFirebaseInitialized()) {
         const app = window.firebase.initializeApp(options);
         this.remoteConfigRef = app.remoteConfig();
 
@@ -243,7 +243,7 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
       if (
         window.firebase &&
         window.firebase.remoteConfig &&
-        FirebaseRemoteConfigWeb.hasFirebaseInitialized()
+        this.hasFirebaseInitialized()
       ) {
         this.remoteConfigRef = window.firebase.remoteConfig();
       }
@@ -305,7 +305,7 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
   /**
    * Returns true/false if firebase object reference exists inside window
    */
-  private static hasFirebaseInitialized() {
+  private hasFirebaseInitialized() {
     if (!window.firebase) {
       return false;
     }
