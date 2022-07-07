@@ -40,30 +40,50 @@ public class FirebaseRemoteConfig: CAPPlugin {
     }
     
     @objc func fetch(_ call: CAPPluginCall) {
+
+        if self.remoteConfig == nil {
+            call.reject("Remote config is not initialized. Make sure initialize() is called at first.")
+        }
+
         self.remoteConfig?.fetch(completionHandler: { (status, error) in
             if status == .success {
                 call.resolve()
             } else {
-                call.reject(error?.localizedDescription ?? "Error occured while executing fetch()")
+                call.reject(error?.localizedDescription ?? "Error occurred while executing fetch()")
             }
         })
     }
     
     @objc func activate(_ call: CAPPluginCall) {
+
+        if self.remoteConfig == nil {
+            call.reject("Remote config is not initialized. Make sure initialize() is called at first.")
+        }
+
         self.remoteConfig?.activate();
     }
     
     @objc func fetchAndActivate(_ call: CAPPluginCall) {
+
+        if self.remoteConfig == nil {
+            call.reject("Remote config is not initialized. Make sure initialize() is called at first.")
+        }
+
         self.remoteConfig?.fetchAndActivate(completionHandler: { (status, error) in
             if status == .successFetchedFromRemote || status == .successUsingPreFetchedData {
                 call.resolve()
             } else {
-                call.reject("Error occured while executing failAndActivate()")
+                call.reject("Error occurred while executing failAndActivate()")
             }
         })
     }
     
     @objc func getBoolean(_ call: CAPPluginCall) {
+
+        if self.remoteConfig == nil {
+            call.reject("Remote config is not initialized. Make sure initialize() is called at first.")
+        }
+
         if call.hasOption("key") {
             let key = call.getString("key")
             
@@ -84,6 +104,11 @@ public class FirebaseRemoteConfig: CAPPlugin {
     }
     
     @objc func getNumber(_ call: CAPPluginCall) {
+    
+        if self.remoteConfig == nil {
+            call.reject("Remote config is not initialized. Make sure initialize() is called at first.")
+        }
+            
         if call.hasOption("key") {
             let key = call.getString("key")
             
@@ -104,6 +129,11 @@ public class FirebaseRemoteConfig: CAPPlugin {
     }
     
     @objc func getString(_ call: CAPPluginCall) {
+    
+        if self.remoteConfig == nil {
+            call.reject("Remote config is not initialized. Make sure initialize() is called at first.")
+        }
+        
         if call.hasOption("key") {
             let key = call.getString("key")
             

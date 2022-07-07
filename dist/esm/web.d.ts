@@ -22,8 +22,26 @@ export declare class FirebaseRemoteConfigWeb extends WebPlugin
   getByteArray(options: RCValueOption): Promise<RCReturnDataArray>;
   getNumber(options: RCValueOption): Promise<RCReturnData>;
   getString(options: RCValueOption): Promise<RCReturnData>;
+  /**
+   * Returns remote config reference object
+   */
   get remoteConfig(): any;
+  /**
+   * Ready resolver to check and load firebase analytics
+   */
   private configure;
+  /**
+   * Check for existing loaded script and load new scripts
+   */
   private loadScripts;
-  private isFirebaseInitialized;
+  /**
+   * Loaded single script with provided id and source
+   * @param id - unique identifier of the script
+   * @param src - source of the script
+   */
+  private loadScript;
+  /**
+   * Returns true/false if firebase object reference exists inside window
+   */
+  private hasFirebaseInitialized;
 }

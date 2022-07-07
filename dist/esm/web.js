@@ -8,21 +8,21 @@ export class FirebaseRemoteConfigWeb extends WebPlugin {
     this.scripts = [
       {
         key: "firebase-app",
-        src: "https://www.gstatic.com/firebasejs/7.15.4/firebase-app.js",
+        src: "https://www.gstatic.com/firebasejs/8.2.3/firebase-app.js",
       },
       {
         key: "firebase-rc",
         src:
-          "https://www.gstatic.com/firebasejs/7.15.4/firebase-remote-config.js",
+          "https://www.gstatic.com/firebasejs/8.2.3/firebase-remote-config.js",
       },
     ];
     this.ready = new Promise((resolve) => (this.readyResolver = resolve));
-    this.configure();
+    this.configure().catch((err) => console.error(err));
   }
   initializeFirebase(options) {
     return new Promise(async (resolve, reject) => {
       await this.ready;
-      if (options && !this.isFirebaseInitialized()) {
+      if (options && !this.hasFirebaseInitialized()) {
         const app = window.firebase.initializeApp(options);
         this.remoteConfigRef = app.remoteConfig();
         resolve();
@@ -119,7 +119,11 @@ export class FirebaseRemoteConfigWeb extends WebPlugin {
         );
         return;
       }
-      resolve(this.remoteConfigRef.getValue(options.key).asBoolean());
+      resolve({
+        key: options.key,
+        value: await this.remoteConfigRef.getValue(options.key).asBoolean(),
+        source: "",
+      });
     });
   }
   getByteArray(options) {
@@ -131,7 +135,11 @@ export class FirebaseRemoteConfigWeb extends WebPlugin {
         );
         return;
       }
-      resolve(this.remoteConfigRef.getValue(options.key).asString());
+      resolve({
+        key: options.key,
+        value: await this.remoteConfigRef.getValue(options.key).asString(),
+        source: "",
+      });
     });
   }
   getNumber(options) {
@@ -143,7 +151,11 @@ export class FirebaseRemoteConfigWeb extends WebPlugin {
         );
         return;
       }
-      resolve(this.remoteConfigRef.getValue(options.key).asNumber());
+      resolve({
+        key: options.key,
+        value: await this.remoteConfigRef.getValue(options.key).asNumber(),
+        source: "",
+      });
     });
   }
   getString(options) {
@@ -155,22 +167,31 @@ export class FirebaseRemoteConfigWeb extends WebPlugin {
         );
         return;
       }
-      // "key": key! as String,
-      //  "value": value! as Bool,
-      //  "source": source!.rawValue as Int
-      resolve(this.remoteConfigRef.getValue(options.key));
+      resolve({
+        key: options.key,
+        value: await this.remoteConfigRef.getValue(options.key),
+        source: "",
+      });
     });
   }
+  /**
+   * Returns remote config reference object
+   */
   get remoteConfig() {
     return this.remoteConfigRef;
   }
+  /**
+   * Ready resolver to check and load firebase analytics
+   */
   async configure() {
     try {
       await this.loadScripts();
-      if (window.firebase && this.isFirebaseInitialized()) {
+      if (
+        window.firebase &&
+        window.firebase.remoteConfig &&
+        this.hasFirebaseInitialized()
+      ) {
         this.remoteConfigRef = window.firebase.remoteConfig();
-      } else {
-        console.error("Firebase App has not yet initialized.");
       }
     } catch (error) {
       throw error;
@@ -183,35 +204,53 @@ export class FirebaseRemoteConfigWeb extends WebPlugin {
       this.readyResolver();
     }, 50);
   }
+  /**
+   * Check for existing loaded script and load new scripts
+   */
   loadScripts() {
-    return new Promise((resolve, reject) => {
+    const firebaseAppScript = this.scripts[0];
+    const firebaseRemoteConfigScript = this.scripts[1];
+    return new Promise(async (resolve, _reject) => {
       const scripts = this.scripts.map((script) => script.key);
       if (
         document.getElementById(scripts[0]) &&
         document.getElementById(scripts[1])
       ) {
-        return resolve();
+        return resolve(null);
       }
-      this.scripts.forEach((script) => {
-        const file = document.createElement("script");
-        file.type = "text/javascript";
-        file.src = script.src;
-        file.id = script.key;
-        file.onload = resolve;
-        file.onerror = reject;
-        document.querySelector("head").appendChild(file);
-      });
+      await this.loadScript(firebaseAppScript.key, firebaseAppScript.src);
+      await this.loadScript(
+        firebaseRemoteConfigScript.key,
+        firebaseRemoteConfigScript.src
+      );
+      resolve(null);
     });
   }
-  isFirebaseInitialized() {
+  /**
+   * Loaded single script with provided id and source
+   * @param id - unique identifier of the script
+   * @param src - source of the script
+   */
+  loadScript(id, src) {
+    return new Promise((resolve, reject) => {
+      const file = document.createElement("script");
+      file.type = "text/javascript";
+      file.src = src;
+      file.id = id;
+      file.onload = resolve;
+      file.onerror = reject;
+      document.querySelector("head").appendChild(file);
+    });
+  }
+  /**
+   * Returns true/false if firebase object reference exists inside window
+   */
+  hasFirebaseInitialized() {
     if (!window.firebase) {
       return false;
     }
     const firebaseApps = window.firebase.apps;
-    if (firebaseApps && firebaseApps.length === 0) {
-      return false;
-    }
-    return true;
+    return !(firebaseApps && firebaseApps.length === 0);
   }
 }
 //# sourceMappingURL=web.js.map
