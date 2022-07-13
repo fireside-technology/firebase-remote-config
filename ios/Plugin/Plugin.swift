@@ -36,6 +36,7 @@ public class FirebaseRemoteConfig: CAPPlugin {
             let settings: RemoteConfigSettings = RemoteConfigSettings()
             settings.minimumFetchInterval = TimeInterval(minFetchInterval)
             self.remoteConfig?.configSettings = settings
+            call.success()
         }
     }
     
@@ -59,8 +60,14 @@ public class FirebaseRemoteConfig: CAPPlugin {
         if self.remoteConfig == nil {
             call.reject("Remote config is not initialized. Make sure initialize() is called at first.")
         }
-
-        self.remoteConfig?.activate();
+            
+        self.remoteConfig?.activate(completionHandler: { (error) in
+            if error != nil {
+                call.error(error?.localizedDescription ?? "Error occurred while executing activate()")
+            } else {
+                call.success()
+            }
+        })
     }
     
     @objc func fetchAndActivate(_ call: CAPPluginCall) {
