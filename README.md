@@ -80,18 +80,18 @@ git checkout -b firebase-remote-config
 
 ## Supported methods
 
-| Name                | Android | iOS | Web |
-| :------------------ | :------ | :-- | :-- |
-| initializeFirebase  | ❌      | ❌  | ✅  |
-| setDefaultWebConfig | ❌      | ❌  | ✅  |
-| initialize          | ✅      | ✅  | ✅  |
-| fetch               | ✅      | ✅  | ✅  |
-| activate            | ✅      | ✅  | ✅  |
-| fetchAndActivate    | ✅      | ✅  | ✅  |
-| getBoolean          | ✅      | ✅  | ✅  |
-| getByteArray        | ✅      | ✅  | ✅  |
-| getNumber           | ✅      | ✅  | ✅  |
-| getString           | ✅      | ✅  | ✅  |
+| Name               | Android | iOS | Web |
+| ------------------ | ------- | --- | --- |
+| initializeFirebase | ✅      | ✅  | ✅  |
+| setDefaultConfig   | ✅      | ✅  | ✅  |
+| initialize         | ✅      | ✅  | ✅  |
+| fetch              | ✅      | ✅  | ✅  |
+| activate           | ✅      | ✅  | ✅  |
+| fetchAndActivate   | ✅      | ✅  | ✅  |
+| getBoolean         | ✅      | ✅  | ✅  |
+| getByteArray       | ✅      | ✅  | ✅  |
+| getNumber          | ✅      | ✅  | ✅  |
+| getString          | ✅      | ✅  | ✅  |
 
 ## Usage
 
@@ -104,8 +104,10 @@ import { Plugins } from "@capacitor/core";
 const { FirebaseRemoteConfig } = Plugins;
 
 /**
- * NOTE: Web Platform only!
- * This method will initialize firebase app if not yet initialized.
+ * This method will initialize firebase remote config if not yet initialized. Note that it
+ * is safe to call but does nothing in iOS or Android as initialization is
+ * automatic on load.
+ *
  * @param firebase configs - from google-service.json or GoogleService-Info.plist
  * @returns void
  */
@@ -121,23 +123,25 @@ FirebaseRemoteConfig.initializeFirebase({
 });
 
 /**
- * NOTE: Web Platform only!
- * This method will set default remote config values.
+ * This method will set default remote config values. On Web, it will read from
+ * the parameters give. On Android and iOS it will use the build in mechanisms
+ * and ignore any parameters supplied.
+ *
  * @param options - key/value params with default values
  * @returns void
  */
-FirebaseRemoteConfig.setDefaultWebConfig({
+FirebaseRemoteConfig.setDefaultConfig({
   has_sale: false,
   event_name: "clearance_event",
 });
 
 /**
  * This method will configure remote config object instance and set the minimum fetch interval to allow for frequest refreshes.
- * @param minimumFetchIntervalInSeconds - interval in seconds (default: 3600)
+ * @param minimumFetchInterval - interval in seconds (default: 3600)
  * @returns void
  */
 FirebaseRemoteConfig.initialize({
-  minimumFetchIntervalInSeconds: 3600,
+  minimumFetchInterval: 3600,
 });
 
 /**
@@ -170,17 +174,6 @@ FirebaseRemoteConfig.fetchAndActivate();
  */
 FirebaseRemoteConfig.getBoolean({
   key: "bool key",
-});
-
-/**
- * This method will return the parameter value for a given key in byte array
- * @param key - key to obtain byte array value
- * @returns key - key used to obtain value
- *          value - byte array value for a given key
- *          source - Indicates that the source of value retrieved (default, remote, static)
- */
-FirebaseRemoteConfig.getByteArray({
-  key: "array key",
 });
 
 /**
