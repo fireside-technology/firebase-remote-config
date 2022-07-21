@@ -91,20 +91,19 @@ public class FirebaseRemoteConfig: CAPPlugin {
             call.reject("Remote config is not initialized. Make sure initialize() is called at first.")
         }
 
-        if call.hasOption("key") {
-            let key = call.getString("key")
-            
-            if key != nil {
-                let value = self.remoteConfig?.configValue(forKey: key).boolValue
-                let source = self.remoteConfig?.configValue(forKey: key).source
-                call.resolve([
-                    "key": key! as String,
-                    "value": value! as Bool,
-                    "source": source!.rawValue as Int
-                ])
-            } else {
-                call.reject("Key is missing")
-            }
+        guard let key = call.options["key"] as? String else {
+          call.reject("Key is missing")
+          return
+        }
+
+        if key != nil {
+            let value = self.remoteConfig?.configValue(forKey: key).boolValue
+            let source = self.remoteConfig?.configValue(forKey: key).source
+            call.resolve([
+                "key": key! as String,
+                "value": value! as Bool,
+                "source": source!.rawValue as Int
+            ])
         } else {
             call.reject("Key is missing")
         }
@@ -115,21 +114,20 @@ public class FirebaseRemoteConfig: CAPPlugin {
         if self.remoteConfig == nil {
             call.reject("Remote config is not initialized. Make sure initialize() is called at first.")
         }
-            
-        if call.hasOption("key") {
-            let key = call.getString("key")
-            
-            if key != nil {
-                let value = self.remoteConfig?.configValue(forKey: key).numberValue
-                let source = self.remoteConfig?.configValue(forKey: key).source
-                call.resolve([
-                    "key": key! as String,
-                    "value": value!,
-                    "source": source!.rawValue as Int
-                ])
-            } else {
-                call.reject("Key is missing")
-            }
+
+        guard let key = call.options["key"] as? String else {
+          call.reject("Key is missing")
+          return
+        }
+
+        if key != nil {
+            let value = self.remoteConfig?.configValue(forKey: key).numberValue
+            let source = self.remoteConfig?.configValue(forKey: key).source
+            call.resolve([
+                "key": key! as String,
+                "value": value!,
+                "source": source!.rawValue as Int
+            ])
         } else {
             call.reject("Key is missing")
         }
@@ -140,21 +138,20 @@ public class FirebaseRemoteConfig: CAPPlugin {
         if self.remoteConfig == nil {
             call.reject("Remote config is not initialized. Make sure initialize() is called at first.")
         }
-        
-        if call.hasOption("key") {
-            let key = call.getString("key")
-            
-            if key != nil {
-                let value = self.remoteConfig?.configValue(forKey: key).stringValue
-                let source = self.remoteConfig?.configValue(forKey: key).source
-                call.resolve([
-                    "key": key! as String,
-                    "value": value!,
-                    "source": source!.rawValue as Int
-                ])
-            } else {
-                call.reject("Key is missing")
-            }
+
+        guard let key = call.options["key"] as? String else {
+          call.reject("Key is missing")
+          return
+        }
+
+        if key != nil {
+            let value = self.remoteConfig?.configValue(forKey: key).stringValue
+            let source = self.remoteConfig?.configValue(forKey: key).source
+            call.resolve([
+                "key": key! as String,
+                "value": value!,
+                "source": source!.rawValue as Int
+            ])
         } else {
             call.reject("Key is missing")
         }
