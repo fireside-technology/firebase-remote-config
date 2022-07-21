@@ -23,13 +23,6 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
   private ErrorRemoteConfigNotInitializedMessage =
     "Remote config is not initialized. Make sure initialize() is called first.";
 
-  constructor() {
-    super({
-      name: "FirebaseRemoteConfig",
-      platforms: ["web"],
-    });
-  }
-
   async initializeFirebase(app: FirebaseApp) {
     this.appRef = app;
   }

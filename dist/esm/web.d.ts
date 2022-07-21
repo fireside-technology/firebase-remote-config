@@ -11,7 +11,6 @@ export declare class FirebaseRemoteConfigWeb extends WebPlugin
   private appRef;
   private ErrorMissingDefaultConfigMessage;
   private ErrorRemoteConfigNotInitializedMessage;
-  constructor();
   initializeFirebase(app: FirebaseApp): Promise<void>;
   setDefaultConfig(options: any): Promise<void>;
   initialize(options?: initOptions): Promise<void>;

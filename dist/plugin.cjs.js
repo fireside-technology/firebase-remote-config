@@ -4122,10 +4122,7 @@ registerRemoteConfig();
 
 class FirebaseRemoteConfigWeb extends core.WebPlugin {
   constructor() {
-    super({
-      name: "FirebaseRemoteConfig",
-      platforms: ["web"],
-    });
+    super(...arguments);
     this.ErrorMissingDefaultConfigMessage = "No default configuration found";
     this.ErrorRemoteConfigNotInitializedMessage =
       "Remote config is not initialized. Make sure initialize() is called first.";
