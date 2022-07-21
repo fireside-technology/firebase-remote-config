@@ -20,10 +20,9 @@ import {
 export class FirebaseRemoteConfigWeb extends WebPlugin
   implements FirebaseRemoteConfigPlugin {
   private remoteConfigRef: RemoteConfig;
-  public ErrMissingDefaultConfig = new Error("No default configuration found");
-  public ErrRemoteConfigNotInitialized = new Error(
-    "Remote config is not initialized. Make sure initialize() is called first."
-  );
+  public ErrorMissingDefaultConfigMessage = "No default configuration found";
+  public ErrorRemoteConfigNotInitializedMessage =
+    "Remote config is not initialized. Make sure initialize() is called first.";
 
   constructor() {
     super({
@@ -37,13 +36,15 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
   }
 
   async setDefaultConfig(options: any): Promise<void> {
-    if (!options) throw this.ErrMissingDefaultConfig;
-    if (!this.remoteConfigRef) throw this.ErrRemoteConfigNotInitialized;
+    if (!options) throw new Error(this.ErrorMissingDefaultConfigMessage);
+    if (!this.remoteConfigRef)
+      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     this.remoteConfigRef.defaultConfig = options;
   }
 
   async initialize(options?: initOptions): Promise<void> {
-    if (!this.remoteConfigRef) throw this.ErrRemoteConfigNotInitialized;
+    if (!this.remoteConfigRef)
+      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
 
     this.remoteConfigRef.settings = {
       minimumFetchIntervalMillis: 1000 * 60 * 60 * 12, // default: 12 hours
@@ -53,22 +54,26 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
   }
 
   async fetch(): Promise<void> {
-    if (!this.remoteConfigRef) throw this.ErrRemoteConfigNotInitialized;
+    if (!this.remoteConfigRef)
+      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     return fetchConfig(this.remoteConfigRef);
   }
 
   async activate(): Promise<void> {
-    if (!this.remoteConfigRef) throw this.ErrRemoteConfigNotInitialized;
+    if (!this.remoteConfigRef)
+      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     await activate(this.remoteConfigRef);
   }
 
   async fetchAndActivate(): Promise<void> {
-    if (!this.remoteConfigRef) throw this.ErrRemoteConfigNotInitialized;
+    if (!this.remoteConfigRef)
+      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     await fetchAndActivate(this.remoteConfigRef);
   }
 
   async getBoolean(options: RCValueOption): Promise<RCReturnData> {
-    if (!this.remoteConfigRef) throw this.ErrRemoteConfigNotInitialized;
+    if (!this.remoteConfigRef)
+      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     return {
       key: options.key,
       value: getBoolean(this.remoteConfigRef, options.key).toString(),
@@ -77,7 +82,8 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
   }
 
   async getNumber(options: RCValueOption): Promise<RCReturnData> {
-    if (!this.remoteConfigRef) throw this.ErrRemoteConfigNotInitialized;
+    if (!this.remoteConfigRef)
+      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     return {
       key: options.key,
       value: getNumber(this.remoteConfigRef, options.key).toString(),
@@ -86,7 +92,8 @@ export class FirebaseRemoteConfigWeb extends WebPlugin
   }
 
   async getString(options: RCValueOption): Promise<RCReturnData> {
-    if (!this.remoteConfigRef) throw this.ErrRemoteConfigNotInitialized;
+    if (!this.remoteConfigRef)
+      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     return {
       key: options.key,
       value: getString(this.remoteConfigRef, options.key),

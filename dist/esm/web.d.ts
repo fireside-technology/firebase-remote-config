@@ -10,8 +10,8 @@ import {
 export declare class FirebaseRemoteConfigWeb extends WebPlugin
   implements FirebaseRemoteConfigPlugin {
   private remoteConfigRef;
-  ErrMissingDefaultConfig: Error;
-  ErrRemoteConfigNotInitialized: Error;
+  ErrorMissingDefaultConfigMessage: string;
+  ErrorRemoteConfigNotInitializedMessage: string;
   constructor();
   initializeFirebase(app: FirebaseApp): Promise<void>;
   setDefaultConfig(options: any): Promise<void>;
