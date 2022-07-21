@@ -96,17 +96,13 @@ public class FirebaseRemoteConfig: CAPPlugin {
           return
         }
 
-        if key != nil {
-            let value = self.remoteConfig?.configValue(forKey: key).boolValue
-            let source = self.remoteConfig?.configValue(forKey: key).source
-            call.resolve([
-                "key": key! as String,
-                "value": value! as Bool,
-                "source": source!.rawValue as Int
-            ])
-        } else {
-            call.reject("Key is missing")
-        }
+        let value = self.remoteConfig?.configValue(forKey: key).boolValue
+        let source = self.remoteConfig?.configValue(forKey: key).source
+        call.resolve([
+            "key": key,
+            "value": value! as Bool,
+            "source": source!.rawValue as Int
+        ])
     }
     
     @objc func getNumber(_ call: CAPPluginCall) {
@@ -120,17 +116,13 @@ public class FirebaseRemoteConfig: CAPPlugin {
           return
         }
 
-        if key != nil {
-            let value = self.remoteConfig?.configValue(forKey: key).numberValue
-            let source = self.remoteConfig?.configValue(forKey: key).source
-            call.resolve([
-                "key": key! as String,
-                "value": value!,
-                "source": source!.rawValue as Int
-            ])
-        } else {
-            call.reject("Key is missing")
-        }
+        let value = self.remoteConfig?.configValue(forKey: key).numberValue
+        let source = self.remoteConfig?.configValue(forKey: key).source
+        call.resolve([
+            "key": key,
+            "value": value!,
+            "source": source!.rawValue as Int
+        ])
     }
     
     @objc func getString(_ call: CAPPluginCall) {
@@ -144,17 +136,13 @@ public class FirebaseRemoteConfig: CAPPlugin {
           return
         }
 
-        if key != nil {
-            let value = self.remoteConfig?.configValue(forKey: key).stringValue
-            let source = self.remoteConfig?.configValue(forKey: key).source
-            call.resolve([
-                "key": key! as String,
-                "value": value!,
-                "source": source!.rawValue as Int
-            ])
-        } else {
-            call.reject("Key is missing")
-        }
+        let value = self.remoteConfig?.configValue(forKey: key).stringValue
+        let source = self.remoteConfig?.configValue(forKey: key).source
+        call.resolve([
+            "key": key,
+            "value": value!,
+            "source": source!.rawValue as Int
+        ])
     }
     
     @objc func initializeFirebase(_ call: CAPPluginCall) {
