@@ -4131,18 +4131,18 @@ class FirebaseRemoteConfigWeb extends core.WebPlugin {
       "Remote config is not initialized. Make sure initialize() is called first.";
   }
   async initializeFirebase(app) {
-    this.remoteConfigRef = getRemoteConfig(app);
+    this.appRef = app;
   }
   async setDefaultConfig(options) {
     if (!options) throw new Error(this.ErrorMissingDefaultConfigMessage);
-    if (!this.remoteConfigRef)
+    if (!this.remoteConfig)
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
-    this.remoteConfigRef.defaultConfig = options;
+    this.remoteConfig.defaultConfig = options;
   }
   async initialize(options) {
-    if (!this.remoteConfigRef)
+    if (!this.remoteConfig)
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
-    this.remoteConfigRef.settings = Object.assign(
+    this.remoteConfig.settings = Object.assign(
       {
         minimumFetchIntervalMillis: 1000 * 60 * 60 * 12,
         fetchTimeoutMillis: 1000 * 60,
@@ -4151,44 +4151,44 @@ class FirebaseRemoteConfigWeb extends core.WebPlugin {
     );
   }
   async fetch() {
-    if (!this.remoteConfigRef)
+    if (!this.remoteConfig)
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
-    return fetchConfig(this.remoteConfigRef);
+    return fetchConfig(this.remoteConfig);
   }
   async activate() {
-    if (!this.remoteConfigRef)
+    if (!this.remoteConfig)
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
-    await activate(this.remoteConfigRef);
+    await activate(this.remoteConfig);
   }
   async fetchAndActivate() {
-    if (!this.remoteConfigRef)
+    if (!this.remoteConfig)
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
-    await fetchAndActivate(this.remoteConfigRef);
+    await fetchAndActivate(this.remoteConfig);
   }
   async getBoolean(options) {
-    if (!this.remoteConfigRef)
+    if (!this.remoteConfig)
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     return {
       key: options.key,
-      value: getBoolean(this.remoteConfigRef, options.key).toString(),
+      value: getBoolean(this.remoteConfig, options.key).toString(),
       source: "",
     };
   }
   async getNumber(options) {
-    if (!this.remoteConfigRef)
+    if (!this.remoteConfig)
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     return {
       key: options.key,
-      value: getNumber(this.remoteConfigRef, options.key).toString(),
+      value: getNumber(this.remoteConfig, options.key).toString(),
       source: "",
     };
   }
   async getString(options) {
-    if (!this.remoteConfigRef)
+    if (!this.remoteConfig)
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     return {
       key: options.key,
-      value: getString(this.remoteConfigRef, options.key),
+      value: getString(this.remoteConfig, options.key),
       source: "",
     };
   }
@@ -4196,7 +4196,7 @@ class FirebaseRemoteConfigWeb extends core.WebPlugin {
    * Returns remote config reference object
    */
   get remoteConfig() {
-    return this.remoteConfigRef;
+    return getRemoteConfig(this.appRef);
   }
 }
 

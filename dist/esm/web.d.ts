@@ -1,6 +1,5 @@
 import { WebPlugin } from "@capacitor/core";
 import { FirebaseApp } from "firebase/app";
-import { RemoteConfig } from "firebase/remote-config";
 import {
   FirebaseRemoteConfigPlugin,
   initOptions,
@@ -9,9 +8,9 @@ import {
 } from "./definitions";
 export declare class FirebaseRemoteConfigWeb extends WebPlugin
   implements FirebaseRemoteConfigPlugin {
-  private remoteConfigRef;
-  ErrorMissingDefaultConfigMessage: string;
-  ErrorRemoteConfigNotInitializedMessage: string;
+  private appRef;
+  private ErrorMissingDefaultConfigMessage;
+  private ErrorRemoteConfigNotInitializedMessage;
   constructor();
   initializeFirebase(app: FirebaseApp): Promise<void>;
   setDefaultConfig(options: any): Promise<void>;
@@ -25,5 +24,5 @@ export declare class FirebaseRemoteConfigWeb extends WebPlugin
   /**
    * Returns remote config reference object
    */
-  get remoteConfig(): RemoteConfig;
+  get remoteConfig(): import("@firebase/remote-config").RemoteConfig;
 }
