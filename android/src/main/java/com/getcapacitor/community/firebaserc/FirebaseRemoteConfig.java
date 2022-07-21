@@ -6,10 +6,11 @@ import android.Manifest;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import com.getcapacitor.JSObject;
-import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -17,14 +18,17 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigValue;
 import java.util.Collections;
 
-@NativePlugin(
+@CapacitorPlugin(
+  name = "FirebaseRemoteConfig",
   permissions = {
-    Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET,
+    @Permission(
+      strings = { Manifest.permission.ACCESS_NETWORK_STATE },
+      alias = "network"
+    ),
+    @Permission(strings = { Manifest.permission.INTERNET }, alias = "internet"),
   }
 )
 public class FirebaseRemoteConfig extends Plugin {
-  public static final String TAG = "FirebaseRemoteConfig";
-
   private com.google.firebase.remoteconfig.FirebaseRemoteConfig mFirebaseRemoteConfig;
 
   @Override
@@ -37,7 +41,7 @@ public class FirebaseRemoteConfig extends Plugin {
 
   @PluginMethod
   public void initialize(PluginCall call) {
-    int minFetchTimeInSecs = call.getInt("minimumFetchIntervalInSeconds", 3600);
+    int minFetchTimeInSecs = call.getInt("minimumFetchInterval", 3600);
     FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
       .setMinimumFetchIntervalInSeconds(minFetchTimeInSecs)
       .build();
@@ -124,21 +128,7 @@ public class FirebaseRemoteConfig extends Plugin {
       result.put("key", key);
       result.put("value", getFirebaseRCValue(key).asBoolean());
       result.put("source", getFirebaseRCValue(key).getSource());
-      call.success(result);
-    } else {
-      call.reject(ERROR_MISSING_KEY);
-    }
-  }
-
-  @PluginMethod
-  public void getByteArray(PluginCall call) {
-    if (call.hasOption("key")) {
-      String key = call.getString("key");
-      JSObject result = new JSObject();
-      result.put("key", key);
-      result.put("value", getFirebaseRCValue(key).asByteArray());
-      result.put("source", getFirebaseRCValue(key).getSource());
-      call.success(result);
+      call.resolve(result);
     } else {
       call.reject(ERROR_MISSING_KEY);
     }
@@ -152,7 +142,7 @@ public class FirebaseRemoteConfig extends Plugin {
       result.put("key", key);
       result.put("value", getFirebaseRCValue(key).asDouble());
       result.put("source", getFirebaseRCValue(key).getSource());
-      call.success(result);
+      call.resolve(result);
     } else {
       call.reject(ERROR_MISSING_KEY);
     }
@@ -166,7 +156,7 @@ public class FirebaseRemoteConfig extends Plugin {
       result.put("key", key);
       result.put("value", getFirebaseRCValue(key).asString());
       result.put("source", getFirebaseRCValue(key).getSource());
-      call.success(result);
+      call.resolve(result);
     } else {
       call.reject(ERROR_MISSING_KEY);
     }
@@ -174,7 +164,7 @@ public class FirebaseRemoteConfig extends Plugin {
 
   @PluginMethod
   public void initializeFirebase(PluginCall call) {
-    call.success();
+    call.resolve();
   }
 
   @PluginMethod
@@ -185,9 +175,7 @@ public class FirebaseRemoteConfig extends Plugin {
       .getString("FirebaseRemoteConfigDefaults", "");
 
     if (fileName.isEmpty()) {
-      this.mFirebaseRemoteConfig.setDefaultsAsync(
-          Collections.<String, Object>emptyMap()
-        );
+      this.mFirebaseRemoteConfig.setDefaultsAsync(Collections.emptyMap());
     } else {
       Context context = bridge.getActivity().getApplicationContext();
       int resourceId = context
@@ -196,7 +184,7 @@ public class FirebaseRemoteConfig extends Plugin {
       this.mFirebaseRemoteConfig.setDefaultsAsync(resourceId);
     }
 
-    call.success();
+    call.resolve();
   }
 
   private FirebaseRemoteConfigValue getFirebaseRCValue(String key) {
