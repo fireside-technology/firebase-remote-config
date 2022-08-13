@@ -1,5 +1,6 @@
 import { WebPlugin } from "@capacitor/core";
 import { FirebaseApp } from "firebase/app";
+import { Value } from "firebase/remote-config";
 import {
   FirebaseRemoteConfigPlugin,
   initOptions,
@@ -17,6 +18,7 @@ export declare class FirebaseRemoteConfigWeb extends WebPlugin
   fetch(): Promise<void>;
   activate(): Promise<void>;
   fetchAndActivate(): Promise<void>;
+  getValue(options: RCValueOption): Promise<Value>;
   getBoolean(options: RCValueOption): Promise<RCReturnData>;
   getNumber(options: RCValueOption): Promise<RCReturnData>;
   getString(options: RCValueOption): Promise<RCReturnData>;

@@ -19,6 +19,6 @@ export interface RCValueOption {
 }
 export interface RCReturnData {
   key: string;
-  value: string;
+  value: string | boolean | number;
   source: string;
 }

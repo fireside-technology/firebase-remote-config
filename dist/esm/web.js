@@ -3,10 +3,8 @@ import {
   fetchConfig,
   activate,
   fetchAndActivate,
-  getBoolean,
   getRemoteConfig,
-  getNumber,
-  getString,
+  getValue,
 } from "firebase/remote-config";
 export class FirebaseRemoteConfigWeb extends WebPlugin {
   constructor() {
@@ -50,31 +48,33 @@ export class FirebaseRemoteConfigWeb extends WebPlugin {
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     await fetchAndActivate(this.remoteConfig);
   }
-  async getBoolean(options) {
+  async getValue(options) {
     if (!this.remoteConfig)
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
+    return getValue(this.remoteConfig, options.key);
+  }
+  async getBoolean(options) {
+    const value = await this.getValue(options);
     return {
       key: options.key,
-      value: getBoolean(this.remoteConfig, options.key).toString(),
-      source: "",
+      value: value.asBoolean(),
+      source: value.getSource(),
     };
   }
   async getNumber(options) {
-    if (!this.remoteConfig)
-      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
+    const value = await this.getValue(options);
     return {
       key: options.key,
-      value: getNumber(this.remoteConfig, options.key).toString(),
-      source: "",
+      value: value.asNumber(),
+      source: value.getSource(),
     };
   }
   async getString(options) {
-    if (!this.remoteConfig)
-      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
+    const value = await this.getValue(options);
     return {
       key: options.key,
-      value: getString(this.remoteConfig, options.key),
-      source: "",
+      value: value.asString(),
+      source: value.getSource(),
     };
   }
   /**

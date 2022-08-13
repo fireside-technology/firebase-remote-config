@@ -3142,49 +3142,6 @@ async function fetchConfig(remoteConfig) {
   }
 }
 /**
- * Gets the value for the given key as a boolean.
- *
- * Convenience method for calling <code>remoteConfig.getValue(key).asBoolean()</code>.
- *
- * @param remoteConfig - The {@link RemoteConfig} instance.
- * @param key - The name of the parameter.
- *
- * @returns The value for the given key as a boolean.
- * @public
- */
-function getBoolean(remoteConfig, key) {
-  return getValue(getModularInstance(remoteConfig), key).asBoolean();
-}
-/**
- * Gets the value for the given key as a number.
- *
- * Convenience method for calling <code>remoteConfig.getValue(key).asNumber()</code>.
- *
- * @param remoteConfig - The {@link RemoteConfig} instance.
- * @param key - The name of the parameter.
- *
- * @returns The value for the given key as a number.
- *
- * @public
- */
-function getNumber(remoteConfig, key) {
-  return getValue(getModularInstance(remoteConfig), key).asNumber();
-}
-/**
- * Gets the value for the given key as a string.
- * Convenience method for calling <code>remoteConfig.getValue(key).asString()</code>.
- *
- * @param remoteConfig - The {@link RemoteConfig} instance.
- * @param key - The name of the parameter.
- *
- * @returns The value for the given key as a string.
- *
- * @public
- */
-function getString(remoteConfig, key) {
-  return getValue(getModularInstance(remoteConfig), key).asString();
-}
-/**
  * Gets the {@link Value} for the given key.
  *
  * @param remoteConfig - The {@link RemoteConfig} instance.
@@ -4162,31 +4119,33 @@ class FirebaseRemoteConfigWeb extends core.WebPlugin {
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
     await fetchAndActivate(this.remoteConfig);
   }
-  async getBoolean(options) {
+  async getValue(options) {
     if (!this.remoteConfig)
       throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
+    return getValue(this.remoteConfig, options.key);
+  }
+  async getBoolean(options) {
+    const value = await this.getValue(options);
     return {
       key: options.key,
-      value: getBoolean(this.remoteConfig, options.key).toString(),
-      source: "",
+      value: value.asBoolean(),
+      source: value.getSource(),
     };
   }
   async getNumber(options) {
-    if (!this.remoteConfig)
-      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
+    const value = await this.getValue(options);
     return {
       key: options.key,
-      value: getNumber(this.remoteConfig, options.key).toString(),
-      source: "",
+      value: value.asNumber(),
+      source: value.getSource(),
     };
   }
   async getString(options) {
-    if (!this.remoteConfig)
-      throw new Error(this.ErrorRemoteConfigNotInitializedMessage);
+    const value = await this.getValue(options);
     return {
       key: options.key,
-      value: getString(this.remoteConfig, options.key),
-      source: "",
+      value: value.asString(),
+      source: value.getSource(),
     };
   }
   /**
