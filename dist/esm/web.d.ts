@@ -7,8 +7,10 @@ import {
   RCReturnData,
   RCValueOption,
 } from "./definitions";
-export declare class FirebaseRemoteConfigWeb extends WebPlugin
-  implements FirebaseRemoteConfigPlugin {
+export declare class FirebaseRemoteConfigWeb
+  extends WebPlugin
+  implements FirebaseRemoteConfigPlugin
+{
   private appRef;
   private ErrorMissingDefaultConfigMessage;
   private ErrorRemoteConfigNotInitializedMessage;

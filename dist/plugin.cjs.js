@@ -1099,7 +1099,7 @@ function isVersionServiceProvider(provider) {
 }
 
 const name$o = "@firebase/app";
-const version$1$1 = "0.7.28";
+const version$1$1 = "0.7.30";
 
 /**
  * @license
@@ -1166,7 +1166,7 @@ const name$2 = "@firebase/firestore";
 const name$1$1 = "@firebase/firestore-compat";
 
 const name$p = "firebase";
-const version$2 = "9.9.0";
+const version$2 = "9.9.2";
 
 /**
  * @license
@@ -1332,14 +1332,14 @@ const ERRORS = {
     "Firebase App instance.",
   ["invalid-log-argument" /* INVALID_LOG_ARGUMENT */]:
     "First argument to `onLog` must be null or a function.",
-  ["storage-open" /* STORAGE_OPEN */]:
-    "Error thrown when opening storage. Original error: {$originalErrorMessage}.",
-  ["storage-get" /* STORAGE_GET */]:
-    "Error thrown when reading from storage. Original error: {$originalErrorMessage}.",
-  ["storage-set" /* STORAGE_WRITE */]:
-    "Error thrown when writing to storage. Original error: {$originalErrorMessage}.",
-  ["storage-delete" /* STORAGE_DELETE */]:
-    "Error thrown when deleting from storage. Original error: {$originalErrorMessage}.",
+  ["idb-open" /* IDB_OPEN */]:
+    "Error thrown when opening IndexedDB. Original error: {$originalErrorMessage}.",
+  ["idb-get" /* IDB_GET */]:
+    "Error thrown when reading from IndexedDB. Original error: {$originalErrorMessage}.",
+  ["idb-set" /* IDB_WRITE */]:
+    "Error thrown when writing to IndexedDB. Original error: {$originalErrorMessage}.",
+  ["idb-delete" /* IDB_DELETE */]:
+    "Error thrown when deleting from IndexedDB. Original error: {$originalErrorMessage}.",
 };
 const ERROR_FACTORY$2 = new ErrorFactory("app", "Firebase", ERRORS);
 
@@ -1486,7 +1486,7 @@ function getDbPromise$1() {
         }
       },
     }).catch((e) => {
-      throw ERROR_FACTORY$2.create("storage-open" /* STORAGE_OPEN */, {
+      throw ERROR_FACTORY$2.create("idb-open" /* IDB_OPEN */, {
         originalErrorMessage: e.message,
       });
     });
@@ -1502,10 +1502,15 @@ async function readHeartbeatsFromIndexedDB(app) {
       .objectStore(STORE_NAME)
       .get(computeKey(app));
   } catch (e) {
-    throw ERROR_FACTORY$2.create("storage-get" /* STORAGE_GET */, {
-      originalErrorMessage:
-        (_a = e) === null || _a === void 0 ? void 0 : _a.message,
-    });
+    if (e instanceof FirebaseError) {
+      logger.warn(e.message);
+    } else {
+      const idbGetError = ERROR_FACTORY$2.create("idb-get" /* IDB_GET */, {
+        originalErrorMessage:
+          (_a = e) === null || _a === void 0 ? void 0 : _a.message,
+      });
+      logger.warn(idbGetError.message);
+    }
   }
 }
 async function writeHeartbeatsToIndexedDB(app, heartbeatObject) {
@@ -1517,10 +1522,15 @@ async function writeHeartbeatsToIndexedDB(app, heartbeatObject) {
     await objectStore.put(heartbeatObject, computeKey(app));
     return tx.done;
   } catch (e) {
-    throw ERROR_FACTORY$2.create("storage-set" /* STORAGE_WRITE */, {
-      originalErrorMessage:
-        (_a = e) === null || _a === void 0 ? void 0 : _a.message,
-    });
+    if (e instanceof FirebaseError) {
+      logger.warn(e.message);
+    } else {
+      const idbGetError = ERROR_FACTORY$2.create("idb-set" /* IDB_WRITE */, {
+        originalErrorMessage:
+          (_a = e) === null || _a === void 0 ? void 0 : _a.message,
+      });
+      logger.warn(idbGetError.message);
+    }
   }
 }
 function computeKey(app) {
@@ -2408,10 +2418,8 @@ async function waitUntilFidRegistration(installations) {
   }
   if (entry.registrationStatus === 0 /* NOT_STARTED */) {
     // The request timed out or failed in a different call. Try again.
-    const {
-      installationEntry,
-      registrationPromise,
-    } = await getInstallationEntry(installations);
+    const { installationEntry, registrationPromise } =
+      await getInstallationEntry(installations);
     if (registrationPromise) {
       return registrationPromise;
     } else {
@@ -3230,13 +3238,11 @@ class CachingClient {
   }
   async fetch(request) {
     // Reads from persisted storage to avoid cache miss if callers don't wait on initialization.
-    const [
-      lastSuccessfulFetchTimestampMillis,
-      lastSuccessfulFetchResponse,
-    ] = await Promise.all([
-      this.storage.getLastSuccessfulFetchTimestampMillis(),
-      this.storage.getLastSuccessfulFetchResponse(),
-    ]);
+    const [lastSuccessfulFetchTimestampMillis, lastSuccessfulFetchResponse] =
+      await Promise.all([
+        this.storage.getLastSuccessfulFetchTimestampMillis(),
+        this.storage.getLastSuccessfulFetchResponse(),
+      ]);
     // Exits early on cache hit.
     if (
       lastSuccessfulFetchResponse &&
@@ -3896,7 +3902,8 @@ class StorageCache {
    */
   async loadFromStorage() {
     const lastFetchStatusPromise = this.storage.getLastFetchStatus();
-    const lastSuccessfulFetchTimestampMillisPromise = this.storage.getLastSuccessfulFetchTimestampMillis();
+    const lastSuccessfulFetchTimestampMillisPromise =
+      this.storage.getLastSuccessfulFetchTimestampMillis();
     const activeConfigPromise = this.storage.getActiveConfig();
     // Note:
     // 1. we consistently check for undefined to avoid clobbering defined values
@@ -3907,9 +3914,11 @@ class StorageCache {
     if (lastFetchStatus) {
       this.lastFetchStatus = lastFetchStatus;
     }
-    const lastSuccessfulFetchTimestampMillis = await lastSuccessfulFetchTimestampMillisPromise;
+    const lastSuccessfulFetchTimestampMillis =
+      await lastSuccessfulFetchTimestampMillisPromise;
     if (lastSuccessfulFetchTimestampMillis) {
-      this.lastSuccessfulFetchTimestampMillis = lastSuccessfulFetchTimestampMillis;
+      this.lastSuccessfulFetchTimestampMillis =
+        lastSuccessfulFetchTimestampMillis;
     }
     const activeConfig = await activeConfigPromise;
     if (activeConfig) {
