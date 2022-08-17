@@ -29,6 +29,7 @@ import java.util.Collections;
   }
 )
 public class FirebaseRemoteConfig extends Plugin {
+
   private com.google.firebase.remoteconfig.FirebaseRemoteConfig mFirebaseRemoteConfig;
 
   @Override
@@ -54,11 +55,10 @@ public class FirebaseRemoteConfig extends Plugin {
       .addOnCompleteListener(
         bridge.getActivity(),
         new OnCompleteListener<Void>() {
-
           @Override
           public void onComplete(@NonNull Task<Void> task) {
             if (task.isSuccessful()) {
-              call.success();
+              call.resolve();
             } else if (task.isCanceled()) {
               call.reject(task.getException().getMessage());
             } else {
@@ -75,11 +75,10 @@ public class FirebaseRemoteConfig extends Plugin {
       .addOnCompleteListener(
         bridge.getActivity(),
         new OnCompleteListener<Boolean>() {
-
           @Override
           public void onComplete(@NonNull Task<Boolean> task) {
             if (task.isSuccessful()) {
-              call.success();
+              call.resolve();
             } else if (task.isCanceled()) {
               call.reject(task.getException().getMessage());
             } else {
@@ -96,11 +95,10 @@ public class FirebaseRemoteConfig extends Plugin {
       .addOnCompleteListener(
         bridge.getActivity(),
         new OnCompleteListener<Boolean>() {
-
           @Override
           public void onComplete(@NonNull Task<Boolean> task) {
             if (task.isSuccessful()) {
-              call.success();
+              call.resolve();
             } else if (task.isCanceled()) {
               call.reject(task.getException().getMessage());
             } else {
@@ -111,7 +109,6 @@ public class FirebaseRemoteConfig extends Plugin {
       )
       .addOnFailureListener(
         new OnFailureListener() {
-
           @Override
           public void onFailure(@NonNull Exception e) {
             call.reject(e.getLocalizedMessage());
@@ -127,7 +124,7 @@ public class FirebaseRemoteConfig extends Plugin {
       JSObject result = new JSObject();
       result.put("key", key);
       result.put("value", getFirebaseRCValue(key).asBoolean());
-      result.put("source", getFirebaseRCValue(key).getSource());
+      result.put("source", getFirebaseRCValueSource(key));
       call.resolve(result);
     } else {
       call.reject(ERROR_MISSING_KEY);
@@ -141,7 +138,7 @@ public class FirebaseRemoteConfig extends Plugin {
       JSObject result = new JSObject();
       result.put("key", key);
       result.put("value", getFirebaseRCValue(key).asDouble());
-      result.put("source", getFirebaseRCValue(key).getSource());
+      result.put("source", getFirebaseRCValueSource(key));
       call.resolve(result);
     } else {
       call.reject(ERROR_MISSING_KEY);
@@ -155,7 +152,7 @@ public class FirebaseRemoteConfig extends Plugin {
       JSObject result = new JSObject();
       result.put("key", key);
       result.put("value", getFirebaseRCValue(key).asString());
-      result.put("source", getFirebaseRCValue(key).getSource());
+      result.put("source", getFirebaseRCValueSource(key));
       call.resolve(result);
     } else {
       call.reject(ERROR_MISSING_KEY);
@@ -189,5 +186,18 @@ public class FirebaseRemoteConfig extends Plugin {
 
   private FirebaseRemoteConfigValue getFirebaseRCValue(String key) {
     return this.mFirebaseRemoteConfig.getValue(key);
+  }
+
+  private String getFirebaseRCValueSource(String key) {
+    int source = getFirebaseRCValue(key).getSource();
+
+    switch (source) {
+      case 0:
+        return "remote";
+      case 1:
+        return "default";
+      default:
+        return "static";
+    }
   }
 }

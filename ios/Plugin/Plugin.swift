@@ -101,7 +101,7 @@ public class FirebaseRemoteConfig: CAPPlugin {
         call.resolve([
             "key": key,
             "value": value! as Bool,
-            "source": source!.rawValue as Int
+            "source": resolveSource(source!.rawValue as Int)
         ])
     }
     
@@ -121,7 +121,7 @@ public class FirebaseRemoteConfig: CAPPlugin {
         call.resolve([
             "key": key,
             "value": value!,
-            "source": source!.rawValue as Int
+            "source": resolveSource(source!.rawValue as Int)
         ])
     }
     
@@ -141,8 +141,19 @@ public class FirebaseRemoteConfig: CAPPlugin {
         call.resolve([
             "key": key,
             "value": value!,
-            "source": source!.rawValue as Int
+            "source": resolveSource(source!.rawValue as Int)
         ])
+    }
+
+    @objc func resolveSource(_ source: Int) -> String {
+      switch source {
+        case 0:
+          return "remote"
+        case 1:
+          return "default"
+        default:
+          return "static"
+      }
     }
     
     @objc func initializeFirebase(_ call: CAPPluginCall) {
